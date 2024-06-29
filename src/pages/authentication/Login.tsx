@@ -2,7 +2,7 @@ import {
   Box,
   Button,
   Checkbox,
-  Divider,
+  // Divider,
   FormControlLabel,
   Grid,
   InputLabel,
@@ -11,12 +11,15 @@ import {
   Stack,
   TextField,
   Typography,
+  CircularProgress,
 } from '@mui/material';
 import IconifyIcon from 'components/base/IconifyIcon';
 import PasswordTextField from 'components/common/PasswordTextField';
-import Facebook from 'components/icons/authentication/Facebook';
+import { useState } from 'react';
+// import Facebook from 'components/icons/authentication/Facebook';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import paths from 'routes/paths';
+import { useAuth } from 'Contexts/AuthContext';
+// import paths from 'routes/paths';
 
 interface LoginFormValues {
   email: string;
@@ -27,8 +30,16 @@ const checkBoxLabel = { inputProps: { 'aria-label': 'Checkbox' } };
 
 const Login = () => {
   const { register, handleSubmit } = useForm<LoginFormValues>();
-  const onSubmit: SubmitHandler<LoginFormValues> = (data) => console.log(data);
 
+  const { login } = useAuth();
+
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const onSubmit: SubmitHandler<LoginFormValues> = (data) => {
+    setLoading(true);
+    login(data);
+    setLoading(false);
+  };
   return (
     <Box sx={{ width: { xs: 1, sm: 506 }, px: { xs: 2, sm: 0 }, py: 10 }}>
       <Typography variant="h1">Get's started.</Typography>
@@ -41,13 +52,13 @@ const Login = () => {
           mb: 6.75,
         }}
       >
-        Don’t have an account?{' '}
+        {/* Don’t have an account?{' '}
         <Typography variant="button" component={Link} href={paths.signup} color="secondary">
           Sign up
-        </Typography>
+        </Typography> */}
       </Typography>
 
-      <Stack gap={1.75} mb={3} direction={{ xs: 'column', sm: 'row' }}>
+      {/* <Stack gap={1.75} mb={3} direction={{ xs: 'column', sm: 'row' }}>
         <Button
           variant="outlined"
           size="large"
@@ -67,7 +78,7 @@ const Login = () => {
         </Button>
       </Stack>
 
-      <Divider>or</Divider>
+      <Divider>or</Divider> */}
 
       <Box component="form" onSubmit={handleSubmit(onSubmit)}>
         <Paper sx={(theme) => ({ padding: theme.spacing(2.5), my: 3, boxShadow: 1 })}>
@@ -122,9 +133,13 @@ const Login = () => {
         </Stack>
 
         <Button variant="contained" type="submit" fullWidth color="secondary" sx={{ py: 2.25 }}>
-          <Typography variant="h4" component="span">
-            Sign in
-          </Typography>
+          {loading ? (
+            <CircularProgress />
+          ) : (
+            <Typography variant="h4" component="span">
+              Sign in
+            </Typography>
+          )}
         </Button>
       </Box>
     </Box>

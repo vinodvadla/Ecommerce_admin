@@ -12,6 +12,7 @@ import ShoppingCart from 'components/icons/drawer/ShoppingCart';
 import SignOut from 'components/icons/drawer/SignOut';
 import { rootPaths } from 'routes/paths';
 import { DrawerItem } from 'types/types';
+import Product from 'components/icons/drawer/Product';
 
 export const drawerItems: DrawerItem[] = [
   {
@@ -52,7 +53,7 @@ export const drawerItems: DrawerItem[] = [
   },
   {
     id: 5,
-    icon: ShoppingBag,
+    icon: Product,
     title: 'Products',
     path: '#!',
     collapsible: false,

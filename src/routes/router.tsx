@@ -1,8 +1,16 @@
-import { Outlet, createBrowserRouter } from 'react-router-dom';
-import paths, { rootPaths } from './paths';
-import { Suspense, lazy } from 'react';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+  useNavigate,
+} from 'react-router-dom';
+import { Suspense, lazy, useEffect } from 'react';
 import Progress from 'components/loading/Progress';
 import LinearLoader from 'components/loading/LinearLoader';
+import { useAuth } from 'Contexts/AuthContext';
+import paths, { rootPaths } from './paths';
 
 const App = lazy(() => import('App'));
 const MainLayout = lazy(() => import('layouts/main-layout'));
@@ -12,52 +20,50 @@ const Login = lazy(() => import('pages/authentication/Login'));
 const Signup = lazy(() => import('pages/authentication/Signup'));
 const ErrorPage = lazy(() => import('pages/errors/ErrorPage'));
 
-export const routes = [
-  {
-    element: (
-      <Suspense fallback={<Progress />}>
-        <App />
-      </Suspense>
-    ),
-    children: [
-      {
-        path: rootPaths.root,
-        element: (
-          <MainLayout>
-            <Suspense fallback={<LinearLoader />}>
-              <Outlet />
-            </Suspense>
-          </MainLayout>
-        ),
-        children: [
-          {
-            index: true,
-            element: <Dashboard />,
-          },
-        ],
-      },
-      {
-        path: rootPaths.authRoot,
-        element: <AuthLayout />,
-        children: [
-          {
-            path: paths.login,
-            element: <Login />,
-          },
-          {
-            path: paths.signup,
-            element: <Signup />,
-          },
-        ],
-      },
-      {
-        path: '*',
-        element: <ErrorPage />,
-      },
-    ],
-  },
-];
+const AppRouter = () => {
+  const { currUser } = useAuth();
+  const navigate = useNavigate();
 
-const router = createBrowserRouter(routes, { basename: '/' });
+  useEffect(() => {
+    if (currUser) {
+      navigate('/');
+    }
+  }, [currUser, navigate]);
 
-export default router;
+  return (
+    <Suspense fallback={<Progress />}>
+      <Routes>
+        <Route path={rootPaths.root} element={<App />}>
+          {currUser ? (
+            <Route
+              element={
+                <MainLayout>
+                  <Suspense fallback={<LinearLoader />}>
+                    <Outlet />
+                  </Suspense>
+                </MainLayout>
+              }
+            >
+              <Route index element={<Dashboard />} />
+              <Route path="*" element={<ErrorPage />} />
+            </Route>
+          ) : (
+            <Route element={<AuthLayout />}>
+              <Route path={paths.login} element={<Login />} />
+              <Route path={paths.signup} element={<Signup />} />
+              <Route path="/" element={<Navigate to={paths.login} replace />} />
+            </Route>
+          )}
+        </Route>
+      </Routes>
+    </Suspense>
+  );
+};
+
+const AppWrapper = () => (
+  <Router basename="/">
+    <AppRouter />
+  </Router>
+);
+
+export default AppWrapper;
