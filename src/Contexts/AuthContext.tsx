@@ -81,8 +81,11 @@ const AuthContextProvider = ({ children }: Props) => {
     localStorage.removeItem('token');
   };
   useEffect(() => {
-    // console.log(currUser);
-  }, [currUser]);
+    const token = localStorage.getItem('token');
+    if (token) {
+      getUser();
+    }
+  }, []);
 
   return (
     <AuthContext.Provider value={{ currUser, setCurruser, login, logout }}>
